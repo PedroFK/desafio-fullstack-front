@@ -2,7 +2,6 @@ import { FaUser } from 'react-icons/fa';
 import { useEffect, useState } from "react";
 import axios from 'axios';
 
-// Atualize a interface Plan para refletir o novo formato
 interface Plan {
   id: number;
   description: string;
@@ -13,7 +12,7 @@ interface Plan {
 interface Contract {
   id: number;
   user_id: number;
-  plan: Plan;
+  plan: Plan | null;
   active: boolean;
   start_date: string;
   end_date: string | null;
@@ -23,7 +22,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  activeContract: Contract;
+  activeContract: Contract | null;
 }
 
 export const User = () => {
@@ -35,7 +34,6 @@ export const User = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/user`);
-        console.log(response)
         setUserData(response.data);
       } catch (err) {
         setError('Erro ao carregar os dados do usuário');
@@ -60,7 +58,10 @@ export const User = () => {
   }
 
   const { name, email, activeContract } = userData;
-  const { plan } = activeContract;
+
+  const hasActiveContract = activeContract !== null;
+  const hasPlan = hasActiveContract && activeContract.plan !== null;
+
   const formatPrice = (price: string): string => {
     const numericPrice = parseFloat(price);
     return numericPrice.toLocaleString("pt-BR", {
@@ -71,8 +72,8 @@ export const User = () => {
     });
   };
 
-  const startDate = new Date(activeContract.start_date);
-const localDateString = startDate.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+  const startDate = hasActiveContract ? new Date(activeContract.start_date) : null;
+  const localDateString = startDate ? startDate.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
 
   return (
     <div className="h-screen items-center bg-gray-100 flex px-4">
@@ -84,13 +85,21 @@ const localDateString = startDate.toLocaleDateString('pt-BR', { timeZone: 'UTC' 
 
       <div className="w-2/3 p-3 flex flex-col items-center">
         <div className="bg-white p-4 rounded-lg shadow-md w-full">
-        <h2 className="text-2xl font-bold mb-4 text-center">Informações do Plano</h2>
-          <h3 className="text-lg font-bold text-center">Plano Atual: {plan.description}</h3>
-          <p className="mt-2 text-center">Preço: {formatPrice(plan.price)}</p>
-          <p className="mt-2 text-center">Armazenamento: {plan.gigabytes_storage} GB</p>
-          <p className="mt-2 text-center">Status: {activeContract.active ? 'Ativo' : 'Inativo'}</p>
-          <p className="mt-2 text-center">Início: {localDateString}</p>
-          </div>
+          <h2 className="text-2xl font-bold mb-4 text-center">Informações do Plano</h2>
+          {hasPlan ? (
+            <>
+              <h3 className="text-lg font-bold text-center">Plano Atual: {activeContract.plan.description}</h3>
+              <p className="mt-2 text-center">Preço: {formatPrice(activeContract.plan.price)}</p>
+              <p className="mt-2 text-center">Armazenamento: {activeContract.plan.gigabytes_storage} GB</p>
+              <p className="mt-2 text-center">Status: {activeContract.active ? 'Ativo' : 'Inativo'}</p>
+              <p className="mt-2 text-center">Início: {localDateString}</p>
+              <p className="mt-2 text-center">Renovação: {localDateString}</p>
+              <h3 className="text-lg text-green-600 font-bold text-center">Crédito: {formatPrice(activeContract.credit)}</h3>
+            </>
+          ) : (
+            <div className="text-gray-500 text-center mt-4">Nenhum plano associado ao contrato encontrado.</div>
+          )}
+        </div>
       </div>
     </div>
   );
