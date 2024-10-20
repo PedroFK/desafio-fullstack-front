@@ -38,8 +38,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         paymentMethod: "PIX",
         start_date: now.toISOString(),
       });
-
-      alert(response);
       onClose();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
