@@ -2,6 +2,8 @@ import React from "react";
 import qrCode from "../assets/qrCode.png";
 import { MdClose } from "react-icons/md";
 import axios from "axios";
+import Swal from "sweetalert2"; // Importando SweetAlert2
+import "sweetalert2/src/sweetalert2.scss"; // Se precisar dos estilos
 
 interface Plan {
   id: number;
@@ -32,24 +34,35 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const handlePaymentDone = async () => {
     try {
       const now = new Date();
-      const response = await axios.post("http://localhost:8000/api/contracts", {
+      await axios.post("http://localhost:8000/api/contracts", {
         user_id: 1,
         plan_id: selectedPlan.id,
         paymentMethod: "PIX",
         start_date: now.toISOString(),
       });
+
+      // Exibindo SweetAlert de Sucesso
+      Swal.fire({
+        title: "Sucesso!",
+        text: "Seu plano foi assinado com sucesso!",
+        icon: "success",
+        confirmButtonText: "Ok",
+      });
+
       onClose();
     } catch (error) {
+      let errorMessage = "Houve um problema ao processar o pagamento.";
       if (axios.isAxiosError(error) && error.response) {
-        console.error("Erro ao chamar a API:", error.response.data);
-        alert(
-          "Houve um problema ao processar o pagamento: " +
-            error.response.data.message
-        );
-      } else {
-        console.error("Erro inesperado:", error);
-        alert("Houve um problema ao processar o pagamento.");
+        errorMessage = error.response.data.message;
       }
+
+      // Exibindo SweetAlert de Erro
+      Swal.fire({
+        title: "Erro",
+        text: `Houve um problema: ${errorMessage}`,
+        icon: "error",
+        confirmButtonText: "Tentar novamente",
+      });
     }
   };
 
@@ -91,7 +104,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           />
         </div>
         <h2 className="text-2xl text-center font-bold mb-2">
-          {" "}
           {formatPrice(selectedPlan.price)}
         </h2>
 
