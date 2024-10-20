@@ -1,11 +1,10 @@
-// src/components/Navbar.js
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { FaUser, FaSignOutAlt } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export const Navbar = () => {
+export const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
