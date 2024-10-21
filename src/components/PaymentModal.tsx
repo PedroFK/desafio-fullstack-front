@@ -2,8 +2,8 @@ import React from "react";
 import qrCode from "../assets/qrCode.png";
 import { MdClose } from "react-icons/md";
 import axios from "axios";
-import Swal from "sweetalert2"; // Importando SweetAlert2
-import "sweetalert2/src/sweetalert2.scss"; // Se precisar dos estilos
+import Swal from "sweetalert2";
+import "sweetalert2/src/sweetalert2.scss";
 
 interface Plan {
   id: number;
@@ -41,7 +41,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         start_date: now.toISOString(),
       });
 
-      // Exibindo SweetAlert de Sucesso
       Swal.fire({
         title: "Sucesso!",
         text: "Seu plano foi assinado com sucesso!",
@@ -52,11 +51,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       onClose();
     } catch (error) {
       let errorMessage = "Houve um problema ao processar o pagamento.";
-      if (axios.isAxiosError(error) && error.response) {
-        errorMessage = error.response.data.message;
+
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
+        errorMessage = error.response.data.error || errorMessage;
       }
 
-      // Exibindo SweetAlert de Erro
       Swal.fire({
         title: "Erro",
         text: `Houve um problema: ${errorMessage}`,

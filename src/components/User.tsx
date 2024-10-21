@@ -1,4 +1,3 @@
-// src/components/User.tsx
 import { useEffect, useState } from "react";
 import axios from 'axios';
 import UserProfile from './User/UserProfile';
